@@ -23,8 +23,8 @@
 
 #include <QWKWidgets/widgetwindowagent.h>
 
-#include <widgetframe/windowbar.h>
-#include <widgetframe/windowbutton.h>
+#include <QWKWidgetFrame/windowbar.h>
+#include <QWKWidgetFrame/windowbutton.h>
 
 class ClockWidget : public QLabel {
 public:

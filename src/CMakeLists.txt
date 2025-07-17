@@ -127,6 +127,7 @@ endmacro()
 # Main Project
 # ----------------------------------
 add_subdirectory(core)
+add_subdirectory(shared)
 
 if(QWINDOWKIT_BUILD_WIDGETS)
     add_subdirectory(widgets)

@@ -5,13 +5,15 @@
 #ifndef WINDOWBUTTON_H
 #define WINDOWBUTTON_H
 
+#include "qwkwidgetframeglobal.h"
+
 #include <QtWidgets/QPushButton>
 
 namespace QWK {
 
     class WindowButtonPrivate;
 
-    class WindowButton : public QPushButton {
+    class QWK_WIDGETFRAME_EXPORT WindowButton : public QPushButton {
         Q_OBJECT
         Q_DECLARE_PRIVATE(WindowButton)
         Q_PROPERTY(QIcon iconNormal READ iconNormal WRITE setIconNormal FINAL)

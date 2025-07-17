@@ -7,12 +7,10 @@ macro(qwk_add_example _target)
 
     add_executable(${_target})
     qm_configure_target(${_target} ${ARGN})
-    qm_add_win_rc(${_target} ICON ${QWK_EXAMPLES_DIR}/shared/resources/app/example.ico)
+    qm_add_win_rc(${_target} ICON ${QWK_EXAMPLES_DIR}/../src/shared/resources/app/example.ico)
     qm_add_win_manifest(${_target})
-    qm_add_mac_bundle(${_target} ICON ${QWK_EXAMPLES_DIR}/shared/resources/app/example.icns)
+    qm_add_mac_bundle(${_target} ICON ${QWK_EXAMPLES_DIR}/../src/shared/resources/app/example.icns)
 endmacro()
-
-add_subdirectory(shared)
 
 if(QWINDOWKIT_BUILD_WIDGETS)
     add_subdirectory(mainwindow)

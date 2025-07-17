@@ -5,6 +5,8 @@
 #ifndef WINDOWBAR_H
 #define WINDOWBAR_H
 
+#include "qwkwidgetframeglobal.h"
+
 #include <QFrame>
 #include <QAbstractButton>
 #include <QMenuBar>
@@ -14,7 +16,7 @@ namespace QWK {
 
     class WindowBarPrivate;
 
-    class WindowBar : public QFrame {
+    class QWK_WIDGETFRAME_EXPORT WindowBar : public QFrame {
         Q_OBJECT
         Q_DECLARE_PRIVATE(WindowBar)
     public:
