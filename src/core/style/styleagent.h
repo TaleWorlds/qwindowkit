@@ -36,6 +36,7 @@ namespace QWK {
 
     Q_SIGNALS:
         void systemThemeChanged();
+        void accentColorChanged();
 
     protected:
         StyleAgent(StyleAgentPrivate &d, QObject *parent = nullptr);

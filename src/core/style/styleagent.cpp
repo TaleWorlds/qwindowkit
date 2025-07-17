@@ -38,6 +38,15 @@ namespace QWK {
         Q_EMIT q->systemThemeChanged();
     }
 
+    void StyleAgentPrivate::notifyAccentColorChanged(QColor col) {
+        if (col == accentColor)
+            return;
+        accentColor = col;
+
+        Q_Q(StyleAgent);
+        Q_EMIT q->accentColorChanged();
+    }
+
     /*!
         Constructor. Since it is not related to a concrete window instance, it is better to be used
         as a singleton.

@@ -84,6 +84,7 @@ namespace QWK {
 
     void StyleAgentPrivate::setupSystemThemeHook() {
         systemTheme = getSystemTheme();
+        accentColor = getAccentColor();
 
         g_styleAgentSet->insert(this);
         SystemSettingEventFilter::install();
