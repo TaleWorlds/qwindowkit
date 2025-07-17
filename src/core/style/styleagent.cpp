@@ -44,7 +44,7 @@ namespace QWK {
         accentColor = col;
 
         Q_Q(StyleAgent);
-        Q_EMIT q->accentColorChanged();
+        Q_EMIT q->accentColorChanged(accentColor);
     }
 
     /*!

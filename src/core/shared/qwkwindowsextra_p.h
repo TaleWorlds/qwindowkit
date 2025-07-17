@@ -437,6 +437,25 @@ namespace QWK {
 #endif
     }
 
+    // NOTE: added for convenience - QGuiApplication::palette().color(QPalette::Accent) does not always return correct value
+    inline QColor getAccentColorSys() {
+        WindowsRegistryKey registry(HKEY_CURRENT_USER, LR"(Software\Microsoft\Windows\DWM)");
+        if (!registry.isValid()) {
+            return {};
+        }
+        auto value = registry.dwordValue(L"AccentColor");
+        if (!value.second) {
+            return {};
+        }
+        // The retrieved value is in the #AABBGGRR format, we need to
+        // convert it to the #AARRGGBB format which Qt expects.
+        QColor color = QColor::fromRgba(value.first);
+        if (!color.isValid()) {
+            return {};
+        }
+        return QColor::fromRgb(color.blue(), color.green(), color.red(), color.alpha());
+    }
+
     inline quint32 getDpiForWindow(HWND hwnd) {
         const DynamicApis &apis = DynamicApis::instance();
         if (apis.pGetDpiForWindow) { // Win10

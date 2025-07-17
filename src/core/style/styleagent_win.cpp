@@ -31,6 +31,10 @@ namespace QWK {
         for (auto &&ap : std::as_const(*g_styleAgentSet())) {
             ap->notifyThemeChanged(theme);
         }
+        auto color = getAccentColorSys();
+        for (auto &&ap : std::as_const(*g_styleAgentSet())) {
+            ap->notifyAccentColorChanged(color);
+        }
     }
 
     class SystemSettingEventFilter : public AppNativeEventFilter {
@@ -84,7 +88,7 @@ namespace QWK {
 
     void StyleAgentPrivate::setupSystemThemeHook() {
         systemTheme = getSystemTheme();
-        accentColor = getAccentColor();
+        accentColor = getAccentColorSys();
 
         g_styleAgentSet->insert(this);
         SystemSettingEventFilter::install();

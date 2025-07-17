@@ -8,6 +8,14 @@
         <file>window-bar/more-line.svg</file>
         <file>window-bar/pin.svg</file>
         <file>window-bar/pin-fill.svg</file>
+		<file>window-bar/close-dark.svg</file>
+		<file>window-bar/fullscreen-dark.svg</file>
+		<file>window-bar/maximize-dark.svg</file>
+		<file>window-bar/minimize-dark.svg</file>
+		<file>window-bar/restore-dark.svg</file>
+		<file>window-bar/more-line-dark.svg</file>
+		<file>window-bar/pin-dark.svg</file>
+		<file>window-bar/pin-fill-dark.svg</file>
         <file>app/example.png</file>
     </qresource>
 </RCC>
