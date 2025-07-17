@@ -317,7 +317,6 @@ namespace QWK {
     WindowBar::WindowBar(WindowBarPrivate &d, QWidget *parent)
         : QFrame(parent), d_ptr(&d) {
         d.q_ptr = this;
-
         d.init();
     }
 
