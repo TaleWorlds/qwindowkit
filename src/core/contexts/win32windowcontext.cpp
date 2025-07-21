@@ -221,7 +221,10 @@ namespace QWK {
 
     // Returns false if the menu is canceled
     static bool showSystemMenu_sys(HWND hWnd, const POINT &pos, const bool selectFirstEntry,
-                                   const bool fixedSize) {
+                                   const bool fixedSize, const bool noClose) {
+        if (fixedSize && noClose) {
+            return true;
+        }
         HMENU hMenu = ::GetSystemMenu(hWnd, FALSE);
         if (!hMenu) {
             // The corresponding window doesn't have a system menu, most likely due to the
@@ -233,9 +236,11 @@ namespace QWK {
         const auto windowStyles = ::GetWindowLongPtrW(hWnd, GWL_STYLE);
         const bool allowMaximize = windowStyles & WS_MAXIMIZEBOX;
         const bool allowMinimize = windowStyles & WS_MINIMIZEBOX;
+        const bool allowClose = !noClose;
 
         const bool maxOrFull = isMaximized(hWnd) || isFullScreen(hWnd);
-        ::EnableMenuItem(hMenu, SC_CLOSE, (MF_BYCOMMAND | MFS_ENABLED));
+        ::EnableMenuItem(hMenu, SC_CLOSE,
+                         (MF_BYCOMMAND | (allowClose ? MFS_ENABLED : MFS_DISABLED)));
         ::EnableMenuItem(
             hMenu, SC_MAXIMIZE,
             (MF_BYCOMMAND |
@@ -699,8 +704,8 @@ namespace QWK {
 #else
                 const QPoint nativeGlobalPos = QHighDpi::toNativePixels(pos, m_windowHandle.data());
 #endif
-                std::ignore = showSystemMenu_sys(hWnd, qpoint2point(nativeGlobalPos), false,
-                                                 isHostSizeFixed());
+                std::ignore = showSystemMenu_sys(hWnd, qpoint2point(nativeGlobalPos), false, isHostSizeFixed(),
+                    !m_delegate->getWindowFlags(m_host).testFlag(Qt::WindowCloseButtonHint));
                 return;
             }
 
@@ -878,12 +883,17 @@ namespace QWK {
         // NOTE: WM_QUIT won't be posted to the WindowProc function.
         switch (message) {
             case WM_DESTROY:
-            case WM_CLOSE:
             case WM_NCDESTROY:
             // Undocumented messages:
             case WM_UAHDESTROYWINDOW:
             case WM_UNREGISTER_WINDOW_SERVICES:
                 return false;
+            case WM_CLOSE:
+                if (!m_delegate->getWindowFlags(m_host).testFlag(Qt::WindowCloseButtonHint)) {
+                    return true;
+                } else {
+                    return false;
+                }
             default:
                 break;
         }
@@ -1441,7 +1451,9 @@ namespace QWK {
                                 break;
                             case WM_NCLBUTTONDBLCLK:
                                 // A message of WM_SYSCOMMAND with SC_CLOSE will be sent by Windows
-                                *result = ::DefWindowProcW(hWnd, message, wParam, lParam);
+                                if (m_delegate->getWindowFlags(m_host).testFlag(Qt::WindowCloseButtonHint)) {
+                                    *result = ::DefWindowProcW(hWnd, message, wParam, lParam);
+                                }
                                 break;
                             default:
                                 *result = FALSE;
@@ -1634,7 +1646,16 @@ namespace QWK {
                                 // The user doesn't want the window to be resized, so we tell
                                 // Windows we are in the client area so that the controls beneath
                                 // the mouse cursor can still be hovered or clicked.
-                                *result = isInTitleBar ? HTCAPTION : HTCLIENT;
+                                if (isInTitleBar) {
+                                    if (!m_delegate->getWindowFlags(m_host).testFlag(
+                                            Qt::MSWindowsFixedSizeDialogHint)) {
+                                        *result = HTCAPTION;
+                                    } else {
+                                        *result = HTCLIENT;
+                                    }
+                                } else {
+                                    *result = HTCLIENT;
+                                }
                             } else {
                                 if (isTop) {
                                     if (isLeft) {
@@ -1767,7 +1788,16 @@ namespace QWK {
                         return true;
                     }
                     if (max) {
-                        *result = isInTitleBar ? HTCAPTION : HTCLIENT;
+                        if (isInTitleBar) {
+                            if (!m_delegate->getWindowFlags(m_host).testFlag(
+                                    Qt::MSWindowsFixedSizeDialogHint)) {
+                                *result = HTCAPTION;
+                            } else {
+                                *result = HTCLIENT;
+                            }
+                        } else {
+                            *result = HTCLIENT;
+                        }
                         return true;
                     }
                     // At this point, we know that the cursor is inside the client area,
@@ -1783,7 +1813,12 @@ namespace QWK {
                             if (isFixedSize || isFixedHeight || dontOverrideCursor ||
                                 (isFixedWidth && (isInLeftBorder || isInRightBorder))) {
                                 if (isInTitleBar) {
-                                    return HTCAPTION;
+                                    if (!m_delegate->getWindowFlags(m_host).testFlag(
+                                            Qt::MSWindowsFixedSizeDialogHint)) {
+                                        return HTCAPTION;
+                                    } else {
+                                        return HTCLIENT;
+                                    }
                                 } else {
                                     return HTCLIENT;
                                 }
@@ -1794,7 +1829,12 @@ namespace QWK {
                         return true;
                     }
                     if (isInTitleBar) {
-                        *result = HTCAPTION;
+                        if (!m_delegate->getWindowFlags(m_host).testFlag(
+                                Qt::MSWindowsFixedSizeDialogHint)) {
+                            *result = HTCAPTION;
+                        } else {
+                            *result = HTCLIENT;
+                        }
                         return true;
                     }
                     *result = HTCLIENT;
@@ -1805,7 +1845,16 @@ namespace QWK {
                         return true;
                     }
                     if (max || isFixedSize || dontOverrideCursor) {
-                        *result = isInTitleBar ? HTCAPTION : HTCLIENT;
+                        if (isInTitleBar) {
+                            if (!m_delegate->getWindowFlags(m_host).testFlag(
+                                    Qt::MSWindowsFixedSizeDialogHint)) {
+                                *result = HTCAPTION;
+                            } else {
+                                *result = HTCLIENT;
+                            }
+                        } else {
+                            *result = HTCLIENT;
+                        }
                         return true;
                     }
                     if (isFixedWidth || isFixedHeight) {
@@ -1884,7 +1933,12 @@ namespace QWK {
                         }
                     }
                     if (isInTitleBar) {
-                        *result = HTCAPTION;
+                        if (!m_delegate->getWindowFlags(m_host).testFlag(
+                                Qt::MSWindowsFixedSizeDialogHint)) {
+                            *result = HTCAPTION;
+                        } else {
+                            *result = HTCLIENT;
+                        }
                         return true;
                     }
                     *result = HTCLIENT;
@@ -2370,7 +2424,7 @@ namespace QWK {
             }
 
             bool res =
-                showSystemMenu_sys(hWnd, nativeGlobalPos, broughtByKeyboard, isHostSizeFixed());
+                showSystemMenu_sys(hWnd, nativeGlobalPos, broughtByKeyboard, isHostSizeFixed(), !m_delegate->getWindowFlags(m_host).testFlag(Qt::WindowCloseButtonHint));
 
             // Uninstall mouse hook and check if it's a double-click
             if (mouseHookedLocal) {
